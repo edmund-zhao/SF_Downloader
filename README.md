@@ -1,6 +1,6 @@
 # SF_Downloader
 此项目旨在保存菠萝包被河蟹的书籍
-['releases下载'](“https://github.com/edmund-zhao/SF_Downloader/releases”)
+['releases下载'](https://github.com/edmund-zhao/SF_Downloader/releases)
 
 
 
