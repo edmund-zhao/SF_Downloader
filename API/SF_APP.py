@@ -143,11 +143,11 @@ class API():
             else:
                 print("全本小说已经下载完成")
                 
-    def download_sort(self,num):
+    def download_sort(self,num,sortid):
         # 返回 分类小说 的目录
         sort_list = []
         for i in range(num):
-            result = requests.get("https://api.sfacg.com/novels/0/sysTags/novels?expand=tags%2CtypeName%2Cdiscount%2CdiscountExpireDate&fields=novelId%2CnovelName%2CnovelCover%2CtypeId%2CauthorName%2CsignStatus%2Cpoint%2CcategoryId%2CcharCount&isfinish=both&isfree=both&page=" + str(i+1) +"&size=10&sort=viewtimes&systagids=74&typeId=0",headers = self.headers)
+            result = requests.get("https://api.sfacg.com/novels/0/sysTags/" + sortid + "/novels?expand=typeName&filter=all&page=" + str(i) + "&size=20&sort=viewtimes",headers = self.headers)
             for data in result.json()['data']:
                 if int(data['charCount']) >= 100000:
                     sort_list.append(str(data['novelId']))
