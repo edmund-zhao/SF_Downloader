@@ -1,4 +1,4 @@
-import requests,json,lxml,time,os,re
+import requests,time,os,re
 from tqdm import tqdm
 from bs4 import BeautifulSoup
 
@@ -84,7 +84,7 @@ class API():
             self.book = input("请输入小说的ID")
         book_url = "http://book.sfacg.com/Novel/"+ self.book +"/MainIndex/"
         r = requests.get(book_url,headers = Web_Headers)
-        Soup = BeautifulSoup(r.text,'lxml')
+        Soup = BeautifulSoup(r.text,'html.parser')
         if Soup.find(text= '小说不存在') == '小说不存在':
             return -1
         try:
@@ -125,7 +125,10 @@ class API():
                         continue
                     # self.__last_list.append()
                     url = 'https://api.sfacg.com/Chaps/' + j[0] +'?chapsId='+ j[0] +'&expand=content%2Cchatlines%2Ctsukkomi%2CneedFireMoney%2CoriginNeedFireMoney'
-                    result = requests.get(url, headers = self.headers)
+                    try:
+                        result = requests.get(url, headers = self.headers)
+                    except:
+                        return -1
                     if result.json()['status']['httpCode'] == 403:
                         print("\t",j[-1],"需要付费VIP")
                         break
@@ -162,7 +165,7 @@ class API():
         sort_list = []
         result = requests.get('https://api.sfacg.com/user/Pockets?expand=chatNovels%2Cnovels%2Calbums%2Ccomics%2Cdiscount%2CdiscountExpireDate', headers = self.headers)
         pattern_id = re.compile("novelId.+?[0-9]{1,12}")
-        pattern_court = re.compile("charCount.+?[0-9]{1,12}")
+        # pattern_court = re.compile("charCount.+?[0-9]{1,12}")
         for i in re.findall(pattern_id,result.text):
             sort_list.append(i.split(":")[-1])
         print("\n总计下载{}本书".format(len(sort_list)))
