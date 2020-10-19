@@ -1,12 +1,16 @@
 # SF_Downloader
+
+
 此项目旨在保存菠萝包被河蟹的书籍
 
 
-V0.2  [releases下载](https://github.com/edmund-zhao/SF_Downloader/releases)
+V0.2.2  [releases下载](https://github.com/edmund-zhao/SF_Downloader/releases)
 
 TG群组 [https://t.me/sfacgbooks](https://t.me/sfacgbooks)
 
+## TODO
 
+彻底舍弃beautifulSoup4库，使用requests+re替代，以便减小体积，增加效率
 
 # License
 
