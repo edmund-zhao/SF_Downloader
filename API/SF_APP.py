@@ -99,7 +99,7 @@ class API():
         if Soup.find(text= '小说不存在') == '小说不存在':
             return -1
         '''
-        if re.search(pattern_404,r.text) != None:
+        if re.search(pattern_404,r.text) is not None:
             print("此小说已下架，或着被河蟹")
             return -1
         try:
