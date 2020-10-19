@@ -1,17 +1,21 @@
-import requests,time,os,re
+import requests
+import time
+import os
+import re
+# from ebooklib import epub
 from tqdm import tqdm
-from bs4 import BeautifulSoup
 
 Web_Headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36 Edg/84.0.522.40'}
 
 # TODO ： 分安卓与苹果来输入Cookies
 
+
 class API():
     def __init__(self):
         self.book = ''
+        self.Chapter = []
         self.Volume = []
         self.Novel_Name = ''
-        self.Division_Volume = {}
         self.Cookie = ''
         self.headers = {'Host': 'api.sfacg.com',
 'Accept-Encoding': 'gzip, deflate, br',
@@ -83,11 +87,33 @@ class API():
         if self.book == '':
             self.book = input("请输入小说的ID")
         book_url = "http://book.sfacg.com/Novel/"+ self.book +"/MainIndex/"
+        ## 编译正则表达式
+        pattern_name = re.compile(r'<h1 class=["]story-title["]>(.*?)</h1>', re.M | re.S)
+        pattern_div = re.compile(r'<h3 class="catalog-title">(.*?)</h3>', re.M | re.S)
+        pattern_404 = re.compile(r'小说不存在')
+        pattern_chapter = re.compile(r'<a href=(.*?) class=""')
         r = requests.get(book_url,headers = Web_Headers)
+        '''
+        不在支持Beautifulsoup4
         Soup = BeautifulSoup(r.text,'html.parser')
         if Soup.find(text= '小说不存在') == '小说不存在':
             return -1
+        '''
+        if re.search(pattern_404,r.text) != None:
+            print("此小说已下架，或着被河蟹")
+            return -1
         try:
+
+            self.Novel_Name = re.findall(pattern_name, r.text)[0]
+            self.Novel_Name = self.Novel_Name.replace("?", "")  # 防止 windows系统下无法创建文件问题
+            self.Volume = re.findall(pattern_div, r.text)
+            list_Chapters = []
+            for i in re.findall(pattern_chapter, r.text):
+                a = i.split('"')[1].split('/')[-2], i.split('"')[3]
+                list_Chapters.append(a)
+            self.Chapter = list_Chapters
+            '''
+            不在支持Beautifulsoup4
             self.Novel_Name = Soup.find('h1',{'class':'story-title'}).text
             self.Novel_Name = self.Novel_Name.replace("?","")
             # print('当前小说为:',self.Novel_Name)
@@ -103,6 +129,7 @@ class API():
                     Chapter.append([chapter_id,title])
                 self.Division_Volume[self.Volume[i]] = Chapter
                 i += 1
+            '''
         except:
             return -1
 #         print(self.Volume)
@@ -115,37 +142,62 @@ class API():
         if not os.path.exists('.//novel'):
             os.mkdir('.//novel')
         with open(".//novel//"+ self.Novel_Name + ".txt", 'a', encoding='utf-8') as fb:
-            print("\n正在下载《{}》".format(self.Novel_Name))
-            for i in self.Volume:
-                # print("正在下载{}卷".format(i.split('】')[-1]))
-                for j in tqdm(self.Division_Volume[i],desc = "\t{}".format(i.split('】')[-1])):
-                    # 判断当前章节是否已经被下载
-                    if j[0] in read_str_list:
-                        # print("\t{}已经下载完成，跳过".format(j[-1]))
-                        continue
-                    # self.__last_list.append()
-                    url = 'https://api.sfacg.com/Chaps/' + j[0] +'?chapsId='+ j[0] +'&expand=content%2Cchatlines%2Ctsukkomi%2CneedFireMoney%2CoriginNeedFireMoney'
-                    try:
-                        result = requests.get(url, headers = self.headers)
-                    except:
-                        return -1
-                    if result.json()['status']['httpCode'] == 403:
-                        print("\t",j[-1],"需要付费VIP")
-                        break
-                    else:
-                        text = '\n' + j[-1] +'\n' + result.json()["data"]["expand"]["content"]
-                        fb.write(text)
-                        # print("\t\t",j[-1],':已完成下载')
-                        time.sleep(0.5)
-                        self.write_point(j[0] + '、')
-                else:
+            pbar = tqdm(self.Chapter)
+            for i in pbar:
+                pbar.set_description(desc = "下载:<{}> {}".format(self.Novel_Name,i[-1]))
+                # 判断当前章节是否已经被下载
+                if i[0] in read_str_list:
+                    # print("\t{}已经下载完成，跳过".format(j[-1]))
                     continue
-                # print("下载《", self.Novel_Name, "》完成")
-                break
-
+                url = 'https://api.sfacg.com/Chaps/' + i[0] + '?chapsId=' + i[0] + '&expand=content%2Cchatlines%2Ctsukkomi%2CneedFireMoney%2CoriginNeedFireMoney'
+                try:
+                    result = requests.get(url, headers=self.headers)
+                except:
+                    return -1
+                if result.json()['status']['httpCode'] == 403:
+                    print("\t", i[-1], "需要付费VIP")
+                    break
+                else:
+                    # TODO: 创建一个EPUB文件
+                    text = '\n' + i[-1] + '\n' + result.json()["data"]["expand"]["content"]
+                    fb.write(text)
+                    # print("\t\t",j[-1],':已完成下载')
+                    time.sleep(0.5)
+                    self.write_point(i[0] + '、')
             else:
                 print("全本小说已经下载完成")
-                
+            # for i in self.Volume:
+            #     # print("正在下载{}卷".format(i.split('】')[-1]))
+            #     for j in tqdm(self.Division_Volume[i],desc = "\t{}".format(i.split('】')[-1])):
+            #         # 判断当前章节是否已经被下载
+            #         if j[0] in read_str_list:
+            #             # print("\t{}已经下载完成，跳过".format(j[-1]))
+            #             continue
+            #         # self.__last_list.append()
+            #         url = 'https://api.sfacg.com/Chaps/' + j[0] +'?chapsId='+ j[0] +'&expand=content%2Cchatlines%2Ctsukkomi%2CneedFireMoney%2CoriginNeedFireMoney'
+            #         try:
+            #             result = requests.get(url, headers = self.headers)
+            #         except:
+            #             return -1
+            #         if result.json()['status']['httpCode'] == 403:
+            #             print("\t",j[-1],"需要付费VIP")
+            #             break
+            #         else:
+            #             # TODO: 创建一个EPUB文件
+            #             text = '\n' + j[-1] +'\n' + result.json()["data"]["expand"]["content"]
+            #             fb.write(text)
+            #             # print("\t\t",j[-1],':已完成下载')
+            #             time.sleep(0.5)
+            #             self.write_point(j[0] + '、')
+            #     else:
+            #         continue
+            #     # print("下载《", self.Novel_Name, "》完成")
+            #     break
+            #
+            # else:
+            #     print("全本小说已经下载完成")
+
+
     def download_sort(self,num,sortid):
         # 返回 分类小说 的目录
         sort_list = []
