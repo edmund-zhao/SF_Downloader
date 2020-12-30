@@ -4,7 +4,7 @@
 此项目旨在保存菠萝包被河蟹的书籍
 
 
-V0.2.2  [releases下载](https://github.com/edmund-zhao/SF_Downloader/releases)
+V0.3.1  [releases下载](https://github.com/edmund-zhao/SF_Downloader/releases)
 
 TG群组 [https://t.me/sfacgbooks](https://t.me/sfacgbooks)
 
