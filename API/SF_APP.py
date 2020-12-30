@@ -83,7 +83,7 @@ class API():
     def get_chapter(self,bookid = ''):
         self.book = bookid
         self.Volume = []
-        self.Division_Volume = {}
+        # self.Division_Volume = {}
         if self.book == '':
             self.book = input("请输入小说的ID")
         book_url = "http://book.sfacg.com/Novel/"+ self.book +"/MainIndex/"
@@ -112,8 +112,7 @@ class API():
                 a = i.split('"')[1].split('/')[-2], i.split('"')[3]
                 list_Chapters.append(a)
             self.Chapter = list_Chapters
-            '''
-            不在支持Beautifulsoup4
+            '''不在支持Beautifulsoup4
             self.Novel_Name = Soup.find('h1',{'class':'story-title'}).text
             self.Novel_Name = self.Novel_Name.replace("?","")
             # print('当前小说为:',self.Novel_Name)
@@ -128,8 +127,7 @@ class API():
                     title = chap.find('a').get('title')
                     Chapter.append([chapter_id,title])
                 self.Division_Volume[self.Volume[i]] = Chapter
-                i += 1
-            '''
+                i += 1'''
         except:
             return -1
 #         print(self.Volume)
