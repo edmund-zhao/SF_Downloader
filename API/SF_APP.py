@@ -21,8 +21,8 @@ class API():
 'Accept-Encoding': 'gzip, deflate, br',
 'Connection': 'keep-alive',
 'Accept': 'application/vnd.sfacg.api+json;version=1',
-'User-Agent': 'boluobao/4.5.52(iOS;14.0)/appStore',
-'Accept-Language': 'zh-Hans-US;q=1',
+'User-Agent': 'boluobao/4.6.52(iOS;14.2)/appStore/80F83EC3-FFF0-4B69-81D4-6FE6EEE3616B',
+'Accept-Language': 'zh-Hans-US;q=1, zh-Hant-TW;q=0.9',
 'Authorization': 'Basic YXBpdXNlcjozcyMxLXl0NmUqQWN2QHFlcg=='}
         
     def get_cookie_security(self):
