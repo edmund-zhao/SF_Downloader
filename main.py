@@ -2,7 +2,7 @@ from API import SF_APP
 
 if __name__ == '__main__':
 
-    print("欢迎使用SF_Spider V0.3.0:")
+    print("欢迎使用SF_Spider V0.3.1:")
 
     Downloader = SF_APP.API()
     Downloader.get_cookie_security()
